@@ -51,45 +51,6 @@ fn diagonal(matrix: &Vec<Vec<char>>) -> Vec<Vec<&char>> {
     diagonals
 }
 
-fn diagonal_with_original_coords(matrix: &Vec<Vec<char>>) -> Vec<Vec<((usize, usize), &char)>> {
-    let mut diagonals = vec![];
-
-    for i in 0..matrix.len() {
-        let mut diagonal_l = vec![];
-        let mut diagonal_r = vec![];
-
-        for j in 0..matrix.len() {
-            if i + j < matrix.len() {
-                diagonal_l.push(((i + j, j), &matrix[i + j][j]));
-
-                if i != 0 {
-                    diagonal_r.push(((j, i + j), &matrix[j][i + j]));
-                }
-            }
-        }
-        diagonals.push(diagonal_l);
-        diagonals.push(diagonal_r);
-    }
-
-    diagonals
-}
-
-fn substring_positions(haystack: &Vec<char>, needle: &str) -> Vec<(usize, usize)> {
-    let mut positions = vec![];
-
-    for i in 0..haystack.len() {
-        if haystack[i..].len() < needle.len() {
-            break;
-        }
-
-        if haystack[i..i + needle.len()].iter().collect::<String>() == needle {
-            positions.push((i, i + needle.len() - 1));
-        }
-    }
-
-    positions
-}
-
 pub fn part_one(input: &str) -> Option<u32> {
     let xmas = "XMAS";
 
