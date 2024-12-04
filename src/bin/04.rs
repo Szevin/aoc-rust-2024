@@ -13,12 +13,17 @@ fn transpose(matrix: &Vec<Vec<char>>) -> Vec<Vec<char>> {
 }
 
 fn count_substrings(haystack: &Vec<char>, needle: &str) -> usize {
-    let forwards = haystack.windows(needle.len()).filter(|window| window.iter().collect::<String>() == needle).count();
+    let forwards = haystack
+        .windows(needle.len())
+        .filter(|window| window.iter().collect::<String>() == needle)
+        .count();
 
     let mut reverse_haystack = haystack.clone();
     reverse_haystack.reverse();
     let backwards = reverse_haystack
-    .windows(needle.len()).filter(|window| window.iter().collect::<String>() == needle).count();
+        .windows(needle.len())
+        .filter(|window| window.iter().collect::<String>() == needle)
+        .count();
 
     forwards + backwards
 }
@@ -85,37 +90,47 @@ fn substring_positions(haystack: &Vec<char>, needle: &str) -> Vec<(usize, usize)
     positions
 }
 
-fn filter_map_positions(haystack: &Vec<char>, needle: &str) -> Option<Vec<(usize, usize)>> {
-    let positions = substring_positions(haystack, needle);
-
-    if positions.is_empty() {
-        None
-    } else {
-        Some(positions)
-    }
-}
-
 pub fn part_one(input: &str) -> Option<u32> {
     let xmas = "XMAS";
 
     let mut count = 0;
 
-    let rows = input.lines().map(|line| line.chars().collect::<Vec<char>>()).collect::<Vec<Vec<char>>>();
+    let rows = input
+        .lines()
+        .map(|line| line.chars().collect::<Vec<char>>())
+        .collect::<Vec<Vec<char>>>();
     let mut cols = transpose(&rows);
 
-    let rows_xmas_count = rows.iter().map(|row| count_substrings(row, xmas)).sum::<usize>();
-    let cols_xmas_count = cols.iter().map(|col| count_substrings(col, xmas)).sum::<usize>();
+    let rows_xmas_count = rows
+        .iter()
+        .map(|row| count_substrings(row, xmas))
+        .sum::<usize>();
+    let cols_xmas_count = cols
+        .iter()
+        .map(|col| count_substrings(col, xmas))
+        .sum::<usize>();
 
     count += rows_xmas_count;
     count += cols_xmas_count;
 
-
-    let diagonal_pos = diagonal(&rows).iter().map(|diagonal| diagonal.iter().map(|pos| **pos).collect()).collect::<Vec<Vec<char>>>();
+    let diagonal_pos = diagonal(&rows)
+        .iter()
+        .map(|diagonal| diagonal.iter().map(|pos| **pos).collect())
+        .collect::<Vec<Vec<char>>>();
     cols.reverse();
-    let diagonal_neg = diagonal(&cols).iter().map(|diagonal| diagonal.iter().map(|pos| **pos).collect()).collect::<Vec<Vec<char>>>();
+    let diagonal_neg = diagonal(&cols)
+        .iter()
+        .map(|diagonal| diagonal.iter().map(|pos| **pos).collect())
+        .collect::<Vec<Vec<char>>>();
 
-    let diagonal_pos_xmas_count = diagonal_pos.iter().map(|diagonal| count_substrings(diagonal, xmas)).sum::<usize>();
-    let diagonal_neg_xmas_count = diagonal_neg.iter().map(|diagonal| count_substrings(diagonal, xmas)).sum::<usize>();
+    let diagonal_pos_xmas_count = diagonal_pos
+        .iter()
+        .map(|diagonal| count_substrings(diagonal, xmas))
+        .sum::<usize>();
+    let diagonal_neg_xmas_count = diagonal_neg
+        .iter()
+        .map(|diagonal| count_substrings(diagonal, xmas))
+        .sum::<usize>();
 
     count += diagonal_pos_xmas_count;
     count += diagonal_neg_xmas_count;
@@ -124,7 +139,57 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let matrix = input
+        .lines()
+        .map(|line| line.chars().collect::<Vec<char>>())
+        .collect::<Vec<Vec<char>>>();
+
+    let mut count = 0;
+
+    let coords_of_a = matrix
+        .iter()
+        .enumerate()
+        .filter_map(|(i, row)| {
+            let a_vec = row
+                .iter()
+                .enumerate()
+                .filter_map(|(j, &c)| {
+                    if c == 'A'
+                        && (1..matrix.len() - 1).contains(&i)
+                        && (1..row.len() - 1).contains(&j)
+                    {
+                        Some((i, j))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<(usize, usize)>>();
+
+            if a_vec.len() > 0 {
+                Some(a_vec)
+            } else {
+                None
+            }
+        })
+        .flatten()
+        .collect::<Vec<(usize, usize)>>();
+
+    for (y, x) in coords_of_a {
+        let valid_words = vec!["MSSM", "SMMS", "SSMM", "MMSS"];
+
+        let diagonal = String::from_iter(vec![
+            matrix[y - 1][x - 1],
+            matrix[y - 1][x + 1],
+            matrix[y + 1][x + 1],
+            matrix[y + 1][x - 1],
+        ]);
+
+        if valid_words.contains(&diagonal.as_str()) {
+            count += 1;
+        }
+    }
+
+    Some(count)
 }
 
 #[cfg(test)]
